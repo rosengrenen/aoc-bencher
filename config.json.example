@@ -1,0 +1,8 @@
+{
+	"repos": {
+		"rosen": {
+			"path": "aoc-rosen",
+			"bench_command": "node bench.js"
+		}
+	}
+}
