@@ -1,0 +1,10 @@
+[package]
+name = "bencher"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0"
+futures = "0.3"
+shared = { path = "../shared" }
+shiplift = "0.7"

@@ -1,0 +1,7 @@
+{
+  "rosen": {
+    2021: {
+      Rust: "rsrp/aoc-bencher:2021-rust"
+    }
+  }
+}
