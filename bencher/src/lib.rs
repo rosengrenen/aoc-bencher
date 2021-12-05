@@ -1,12 +1,17 @@
-use std::collections::HashMap;
+use std::time::Duration;
 
 use futures::StreamExt;
 use shared::Bench;
-use shiplift::{ContainerOptions, Docker, PullOptions};
+use shiplift::{Container, ContainerOptions, Docker, LogsOptions, PullOptions, RmContainerOptions};
+use tokio::time::sleep;
 
-pub async fn run_benchmark(user: &str, docker_image: &str, day: i64) -> anyhow::Result<Bench> {
+pub async fn run_benchmark(
+	docker_image: &str,
+	day: i64,
+	aoc_session: &str,
+) -> anyhow::Result<Bench> {
 	pull_image(docker_image).await?;
-	Ok(run_container(docker_image, day).await?)
+	Ok(run_container(docker_image, day, aoc_session).await?)
 }
 
 async fn pull_image(docker_image: &str) -> anyhow::Result<()> {
@@ -24,36 +29,60 @@ async fn pull_image(docker_image: &str) -> anyhow::Result<()> {
 	Ok(())
 }
 
-async fn run_container(docker_image: &str, day: i64) -> anyhow::Result<Bench> {
+async fn run_container(docker_image: &str, day: i64, aoc_session: &str) -> anyhow::Result<Bench> {
 	let docker = Docker::new();
 
-	let lmao = docker
+	let created_container = docker
 		.containers()
 		.create(
 			&ContainerOptions::builder(docker_image)
+				.env(&[format!("AOC_SESSION={}", aoc_session)])
 				.cmd(vec![&format!("{}", day)])
 				.build(),
 		)
+		.await?;
+
+	let container = docker.containers().get(created_container.id);
+	container.start().await?;
+
+	for _ in 0..120 {
+		sleep(Duration::from_secs(1)).await;
+		let container_details = container.inspect().await?;
+		let state = &container_details.state;
+		if !state.running {
+			if state.status == "exited" && state.exit_code == 0 {
+				let logs = container_logs(&container).await?;
+				let _ = container
+					.remove(RmContainerOptions::builder().force(true).build())
+					.await;
+				return Ok(serde_json::from_str(&logs)?);
+			} else {
+				anyhow::bail!("Failed to run benchmarks in docker container");
+			}
+		}
+	}
+
+	let _ = container.stop(None).await;
+	let _ = container
+		.remove(RmContainerOptions::builder().force(true).build())
 		.await;
 
-	let lmao = lmao.unwrap();
-	println!("{:?}", lmao);
+	anyhow::bail!("Benchmark took too long");
+}
 
-	// let opts = ExecContainerOptions::builder()
-	// 	.cmd(cmd.iter().map(String::as_str).collect())
-	// 	.attach_stdout(true)
-	// 	.attach_stderr(true)
-	// 	.build();
+async fn container_logs(container: &Container<'_>) -> anyhow::Result<String> {
+	let mut stream = container.logs(&LogsOptions::builder().stdout(true).build());
 
-	// let exec = Exec::create(&docker, &id, &opts).await.unwrap();
+	let mut logs = String::new();
+	while let Some(res) = stream.next().await {
+		match res {
+			Ok(chunk) => match chunk {
+				shiplift::tty::TtyChunk::StdOut(chunk) => logs += std::str::from_utf8(&chunk)?,
+				_ => continue,
+			},
+			Err(e) => eprintln!("Error: {}", e),
+		}
+	}
 
-	// println!("{:#?}", exec.inspect().await.unwrap());
-
-	// let mut stream = exec.start();
-
-	// stream.next().await;
-
-	// println!("{:#?}", exec.inspect().await.unwrap());
-
-	anyhow::bail!("kekw");
+	Ok(logs)
 }

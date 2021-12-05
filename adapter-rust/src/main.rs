@@ -29,7 +29,7 @@ fn run_benchmark() -> anyhow::Result<Bench> {
 		anyhow::bail!("Specify a day using argument");
 	}
 
-	let day: i64 = args[1].parse()?;
+	let day: i64 = args[1].parse().expect("Invalid day");
 	let command = format!(
 		"cargo bench day{:02} -- --format json --Z unstable-options",
 		day

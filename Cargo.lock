@@ -42,8 +42,10 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "futures",
+ "serde_json",
  "shared",
  "shiplift",
+ "tokio",
 ]
 
 [[package]]
