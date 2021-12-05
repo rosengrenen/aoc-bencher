@@ -1,0 +1,514 @@
+{
+  "db": "PostgreSQL",
+  "0ca73f77ce121af03b9646ce6b8b1bf0de1daa53c6738aa69aa73f0d3edeaac8": {
+    "query": "\nUPDATE benchmarks\nSET\n\tusername = $2,\n\tyear = $3,\n\tday = $4,\n\tp1 = $5,\n\tp1_deviation = $6,\n\tp2 = $7,\n\tp2_deviation = $8,\n\tparse = $9,\n\tparse_deviation = $10,\n\tlast_run = $11,\n\ttimeout = $12\nWHERE id = $1\nRETURNING *\n\t\t\t",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "year",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 3,
+          "name": "day",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 4,
+          "name": "p1",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 5,
+          "name": "p1_deviation",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 6,
+          "name": "p2",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 7,
+          "name": "p2_deviation",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 8,
+          "name": "parse",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 9,
+          "name": "parse_deviation",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 10,
+          "name": "last_run",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 11,
+          "name": "timeout",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 12,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 13,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Int8",
+          "Int8",
+          "Int8",
+          "Int8",
+          "Int8",
+          "Int8",
+          "Int8",
+          "Int8",
+          "Timestamptz",
+          "Bool"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "339a5dc3edc0c341f55d96706287c06a28f20a5a669844f371a6fa1ef480a8cb": {
+    "query": "\nSELECT * FROM benchmarks\n\t\t\t",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "year",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 3,
+          "name": "day",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 4,
+          "name": "p1",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 5,
+          "name": "p1_deviation",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 6,
+          "name": "p2",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 7,
+          "name": "p2_deviation",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 8,
+          "name": "parse",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 9,
+          "name": "parse_deviation",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 10,
+          "name": "last_run",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 11,
+          "name": "timeout",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 12,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 13,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "35ef97038edc83b0fed22f8bbd24b7fa105f6c8e5886481efad75d3894f6b001": {
+    "query": "\nSELECT * FROM benchmarks \nWHERE\tusername = $1 AND year = $2 AND day = $3\n\t\t\t",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "year",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 3,
+          "name": "day",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 4,
+          "name": "p1",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 5,
+          "name": "p1_deviation",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 6,
+          "name": "p2",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 7,
+          "name": "p2_deviation",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 8,
+          "name": "parse",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 9,
+          "name": "parse_deviation",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 10,
+          "name": "last_run",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 11,
+          "name": "timeout",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 12,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 13,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int8",
+          "Int8"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "883ab2c78bfaf4dc752a9bada6159ef4db3f17c002183f4f0afb53fc050a13c0": {
+    "query": "\nSELECT * FROM benchmarks \nWHERE\tyear = $1\n\t\t\t",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "year",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 3,
+          "name": "day",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 4,
+          "name": "p1",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 5,
+          "name": "p1_deviation",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 6,
+          "name": "p2",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 7,
+          "name": "p2_deviation",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 8,
+          "name": "parse",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 9,
+          "name": "parse_deviation",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 10,
+          "name": "last_run",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 11,
+          "name": "timeout",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 12,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 13,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "cf97adaaf336eade1c00af7bb33bad20279df0fc01bb5fe1b098d6252dd07d4e": {
+    "query": "\nINSERT INTO benchmarks (\n  username, year, day, p1, p1_deviation, p2, p2_deviation, parse, parse_deviation, last_run, timeout\n)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nRETURNING *\n\t\t\t",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "year",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 3,
+          "name": "day",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 4,
+          "name": "p1",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 5,
+          "name": "p1_deviation",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 6,
+          "name": "p2",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 7,
+          "name": "p2_deviation",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 8,
+          "name": "parse",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 9,
+          "name": "parse_deviation",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 10,
+          "name": "last_run",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 11,
+          "name": "timeout",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 12,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 13,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Int8",
+          "Int8",
+          "Int8",
+          "Int8",
+          "Int8",
+          "Int8",
+          "Int8",
+          "Int8",
+          "Timestamptz",
+          "Bool"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  }
+}

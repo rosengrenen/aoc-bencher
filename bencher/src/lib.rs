@@ -5,16 +5,24 @@ use shared::Bench;
 use shiplift::{Container, ContainerOptions, Docker, LogsOptions, PullOptions, RmContainerOptions};
 use tokio::time::sleep;
 
-pub async fn run_benchmark(
-	docker_image: &str,
-	day: i64,
-	aoc_session: &str,
-) -> anyhow::Result<Bench> {
+#[derive(Debug, thiserror::Error)]
+pub enum BenchError {
+	#[error("Bad result from benchmark")]
+	ParseError,
+	#[error("Angry whale noises")]
+	DockerError,
+	#[error("Benchmark took too long")]
+	Timeout,
+}
+
+pub type BenchResult<T> = Result<T, BenchError>;
+
+pub async fn run_benchmark(docker_image: &str, day: i64, aoc_session: &str) -> BenchResult<Bench> {
 	pull_image(docker_image).await?;
 	Ok(run_container(docker_image, day, aoc_session).await?)
 }
 
-async fn pull_image(docker_image: &str) -> anyhow::Result<()> {
+async fn pull_image(docker_image: &str) -> BenchResult<()> {
 	let docker = Docker::new();
 	let mut stream = docker
 		.images()
@@ -22,14 +30,14 @@ async fn pull_image(docker_image: &str) -> anyhow::Result<()> {
 
 	while let Some(pull_result) = stream.next().await {
 		if pull_result.is_err() {
-			anyhow::bail!("Failed to pull image {}", docker_image);
+			return Err(BenchError::DockerError);
 		}
 	}
 
 	Ok(())
 }
 
-async fn run_container(docker_image: &str, day: i64, aoc_session: &str) -> anyhow::Result<Bench> {
+async fn run_container(docker_image: &str, day: i64, aoc_session: &str) -> BenchResult<Bench> {
 	let docker = Docker::new();
 
 	let created_container = docker
@@ -40,14 +48,21 @@ async fn run_container(docker_image: &str, day: i64, aoc_session: &str) -> anyho
 				.cmd(vec![&format!("{}", day)])
 				.build(),
 		)
-		.await?;
+		.await
+		.map_err(|_| BenchError::DockerError)?;
 
 	let container = docker.containers().get(created_container.id);
-	container.start().await?;
+	container
+		.start()
+		.await
+		.map_err(|_| BenchError::DockerError)?;
 
 	for _ in 0..120 {
 		sleep(Duration::from_secs(1)).await;
-		let container_details = container.inspect().await?;
+		let container_details = container
+			.inspect()
+			.await
+			.map_err(|_| BenchError::DockerError)?;
 		let state = &container_details.state;
 		if !state.running {
 			if state.status == "exited" && state.exit_code == 0 {
@@ -55,9 +70,9 @@ async fn run_container(docker_image: &str, day: i64, aoc_session: &str) -> anyho
 				let _ = container
 					.remove(RmContainerOptions::builder().force(true).build())
 					.await;
-				return Ok(serde_json::from_str(&logs)?);
+				return Ok(serde_json::from_str(&logs).map_err(|_| BenchError::ParseError)?);
 			} else {
-				anyhow::bail!("Failed to run benchmarks in docker container");
+				return Err(BenchError::DockerError);
 			}
 		}
 	}
@@ -67,20 +82,22 @@ async fn run_container(docker_image: &str, day: i64, aoc_session: &str) -> anyho
 		.remove(RmContainerOptions::builder().force(true).build())
 		.await;
 
-	anyhow::bail!("Benchmark took too long");
+	Err(BenchError::Timeout)
 }
 
-async fn container_logs(container: &Container<'_>) -> anyhow::Result<String> {
+async fn container_logs(container: &Container<'_>) -> BenchResult<String> {
 	let mut stream = container.logs(&LogsOptions::builder().stdout(true).build());
 
 	let mut logs = String::new();
 	while let Some(res) = stream.next().await {
 		match res {
 			Ok(chunk) => match chunk {
-				shiplift::tty::TtyChunk::StdOut(chunk) => logs += std::str::from_utf8(&chunk)?,
+				shiplift::tty::TtyChunk::StdOut(chunk) => {
+					logs += std::str::from_utf8(&chunk).map_err(|_| BenchError::ParseError)?
+				}
 				_ => continue,
 			},
-			Err(e) => eprintln!("Error: {}", e),
+			Err(_) => return Err(BenchError::DockerError),
 		}
 	}
 

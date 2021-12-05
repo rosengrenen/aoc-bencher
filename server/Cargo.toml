@@ -6,6 +6,13 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0"
 bencher = { path = "../bencher" }
+chrono = "0.4"
+dotenv = "0.15"
+env_logger = "0.9"
 ron = "0.7"
 serde = { version = "1.0", features = ["derive"] }
+shared = { path = "../shared" }
+sqlx = { version = "0.5", features = [ "chrono", "offline", "postgres", "runtime-tokio-rustls", "uuid" ] }
 tokio = { version = "1.14", features = ["full"] }
+uuid = { version = "0.8", features = ["serde"] }
+warp = "0.3"

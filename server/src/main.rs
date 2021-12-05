@@ -1,35 +1,27 @@
-use std::collections::HashMap;
+mod http;
+mod models;
+mod repo;
+mod runner;
 
-use serde::Deserialize;
-use tokio::fs::read_to_string;
+use std::env;
 
-#[derive(Debug, Deserialize, Hash, PartialEq, Eq)]
-enum Lang {
-	Rust,
-}
-
-type Users<'a> = HashMap<&'a str, HashMap<i64, HashMap<Lang, &'a str>>>;
+use runner::poll_benchmark;
+use sqlx::PgPool;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-	let config_file = read_to_string("config.ron").await?;
-	let users: Users = ron::from_str(&config_file)?;
-	let aoc_session = std::env::var("AOC_SESSION").unwrap();
-	let year = 2021;
-	let day = 2;
-	for (user, years) in users {
-		let langs = match years.get(&year) {
-			Some(langs) => langs,
-			None => continue,
-		};
+  env_logger::init();
+	let _ = dotenv::dotenv();
+	let db_url = env::var("DATABASE_URL").expect("DATABASE_URL is missing");
+	let db_pool = PgPool::connect(&db_url).await?;
 
-		for (lang, docker_image) in langs {
-			match bencher::run_benchmark(docker_image, day, &aoc_session).await {
-				Ok(bench) => println!("{} {:?} {:?}", user, lang, bench),
-				Err(_) => println!("benchmark failed"),
-			};
-		}
-	}
+	tokio::spawn({
+		let db_pool = db_pool.clone();
+		async move { poll_benchmark(db_pool).await }
+	});
+
+	let routes = http::init_routes(db_pool);
+	warp::serve(routes).run(([0, 0, 0, 0], 8080)).await;
 
 	Ok(())
 }

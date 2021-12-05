@@ -1,0 +1,33 @@
+version: "3"
+services:
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    environment:
+      DATABASE_URL: postgres://aoc:aoc@db/aoc
+      AOC_SESSION: ${AOC_SESSION}
+    ports:
+      - 8080:8080
+    volumes:
+      - ./server/config.ron:/app/config.ron
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  db:
+    image: postgres:13.2
+    environment:
+      POSTGRES_DB: aoc
+      POSTGRES_USER: aoc
+      POSTGRES_PASSWORD: aoc
+    ports:
+      - 5432:5432
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    ports:
+      - 8082:8080
+
+volumes:
+  pg_data:

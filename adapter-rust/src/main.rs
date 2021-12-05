@@ -25,15 +25,24 @@ enum BenchType {
 
 fn run_benchmark() -> anyhow::Result<Bench> {
 	let args: Vec<_> = env::args().collect();
-	if args.len() < 2 {
-		anyhow::bail!("Specify a day using argument");
-	}
+	let command = if args.len() == 2 {
+		let day: i64 = args[1].parse().unwrap();
+		format!(
+			"cargo bench -- day{:02} --format json --Z unstable-options",
+			day
+		)
+	} else if args.len() == 3 {
+		let executable = &args[1];
+		let day: i64 = args[2].parse().unwrap();
+		format!(
+			"{} --bench day{:02} --format json --Z unstable-options",
+			executable, day
+		)
+	} else {
+		eprintln!("Usage: ... [EXECUTABLE] DAY ");
+		panic!();
+	};
 
-	let day: i64 = args[1].parse().expect("Invalid day");
-	let command = format!(
-		"cargo bench day{:02} -- --format json --Z unstable-options",
-		day
-	);
 	let output = Command::new("sh").arg("-c").arg(command).output()?;
 	if !output.status.success() {
 		anyhow::bail!("Failed to run benchmark");
